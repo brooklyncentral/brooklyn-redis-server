@@ -21,7 +21,7 @@ brooklyn.catalog:
   - id: redis-server-tests
     version: 1.0
     itemType: template
-    iconUrl: https://s3.amazonaws.com/drigodwin-misc/redis.png
+    iconUrl: https://github.com/brooklyncentral/brooklyn-redis-server/raw/master/redis.png
     name: Redis Server tests
     description: Test that Redis is running and can run minimal examples
     license_code: Apache-2.0
