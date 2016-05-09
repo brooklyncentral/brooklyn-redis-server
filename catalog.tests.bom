@@ -1,0 +1,127 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+brooklyn.catalog:
+  items:
+  - id: redis-server-tests
+    version: 1.0
+    itemType: template
+    iconUrl: https://s3.amazonaws.com/drigodwin-misc/redis.png
+    name: Redis Server tests
+    description: Test that Redis is running and can run minimal examples
+    license_code: Apache-2.0
+    license_url: http://www.apache.org/licenses/LICENSE-2.0.txt
+    item:
+      services:
+      - type: brooklyn-redis-server
+        id: redis
+      - type: org.apache.brooklyn.test.framework.TestCase
+        brooklyn.config:
+          timeout: 15m
+          targetId: redis
+        name: Redis Server tests
+        brooklyn.children:
+        - type: org.apache.brooklyn.test.framework.TestCase
+          name: "Initial Tests"
+          brooklyn.children:
+          # Is up and can deploy
+          - type: org.apache.brooklyn.test.framework.TestSensor
+            name: TEST [service.state] IS [running]
+            sensor: service.state
+            assert:
+            - matches: running
+        
+        - type: org.apache.brooklyn.test.framework.TestCase
+          name: "Effector Restart, Stop & Restart Tests"
+          brooklyn.children:      
+          # Effector: restart Tests
+          - type: org.apache.brooklyn.test.framework.TestEffector
+            name: Invoke restart Effector
+            effector: restart
+            params:
+              restartMachine: false
+          - type: org.apache.brooklyn.test.framework.TestSensor
+            name: Check Redis is up after restart
+            sensor: service.isUp
+            assert:
+            - equals: true
+          - type: org.apache.brooklyn.test.framework.SimpleShellCommandTest
+            name: Check Redis process has restarted
+            command: ps -ef | grep [r]edis-server
+            assertStatus:
+              equals: 0
+          # Effector: stop + restart Tests
+          - type: org.apache.brooklyn.test.framework.TestEffector
+            name: Invoke stop Effector
+            effector: stop
+            params:
+              stopMachineMode: NEVER
+          - type: org.apache.brooklyn.test.framework.TestSensor
+            name: Check Redis is not up after stop
+            sensor: service.isUp
+            assert:
+            - equals: false
+          - type: org.apache.brooklyn.test.framework.SimpleShellCommandTest
+            name: Check Redis process has stopped
+            command: ps -ef | grep [r]edis-server
+            assertStatus:
+              equals: 1
+          - type: org.apache.brooklyn.test.framework.TestEffector
+            name: Invoke restart Effector
+            effector: restart
+            params:
+              restartMachine: false
+          - type: org.apache.brooklyn.test.framework.TestSensor
+            name: Check Redis is up after restart
+            sensor: service.isUp
+            assert:
+            - equals: true
+          - type: org.apache.brooklyn.test.framework.SimpleShellCommandTest
+            name: Check Redis process has restarted
+            command: ps -ef | grep [r]edis-server
+            assertStatus:
+              equals: 0
+        
+        - type: org.apache.brooklyn.test.framework.TestCase
+          name: "Example Tests"
+          brooklyn.children:       
+          # Run a hello world tutorial
+          - type: org.apache.brooklyn.test.framework.SimpleShellCommandTest
+            name: Check a Redis hello world
+            command: |
+              # get redis.sh from the repo
+              wget https://raw.githubusercontent.com/crypt1d/redi.sh/master/redi.sh
+              sudo chmod +x redi.sh
+              # set a value
+              echo hello_world_test=Hello World | ./redi.sh
+              ~/redi.sh -g hello_world_test
+            assertStatus:
+              equals: 0
+            assertOut:
+              contains: Hello World
+          - type: org.apache.brooklyn.test.framework.SimpleShellCommandTest
+            name: Check a list based Redis hello world
+            command: |
+              # set a list
+              typeset -a Colours=([0]="red" [1]="green" [2]="blue")
+              typeset | grep ^Colours= | ./redi.sh -a
+              ~/redi.sh -ag Colours
+            assertStatus:
+              equals: 0
+            assertOut:
+              contains: Colours=([0]="red" [1]="green" [2]="blue")

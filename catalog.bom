@@ -22,10 +22,12 @@ brooklyn.catalog:
   name: Redis Server
   description: Redis is an open-source, networked, in-memory, key-value data store with optional durability
   itemType: template
+  iconUrl: https://s3.amazonaws.com/drigodwin-misc/redis.png
   license: Apache-2.0
   publish:
     license_code: Apache-2.0
     reference: reference.json
+    qa: catalog.tests.bom
   item:
     services:
     - type: org.apache.brooklyn.entity.nosql.redis.RedisStore
