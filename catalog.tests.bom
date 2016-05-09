@@ -106,7 +106,7 @@ brooklyn.catalog:
             command: |
               # get redis.sh from the repo
               wget https://raw.githubusercontent.com/crypt1d/redi.sh/master/redi.sh
-              sudo chmod +x redi.sh
+              chmod +x redi.sh
               # set a value
               echo hello_world_test=Hello World | ./redi.sh
               ~/redi.sh -g hello_world_test
