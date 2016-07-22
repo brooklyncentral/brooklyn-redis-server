@@ -119,7 +119,7 @@ brooklyn.catalog:
               elif [[ ! -z $(which apt-get) ]]; then
                 sudo apt-get install -y wget
               else
-                echo "error can't install package $PACKAGE"
+                echo "error can't install wget"
                 exit 1;
               fi
               # get redis.sh from the repo
