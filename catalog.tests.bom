@@ -114,6 +114,14 @@ brooklyn.catalog:
           - type: org.apache.brooklyn.test.framework.SimpleShellCommandTest
             name: Check a Redis hello world
             command: |
+              if [[ ! -z $(which yum) ]]; then
+                sudo yum -y install wget
+              elif [[ ! -z $(which apt-get) ]]; then
+                sudo apt-get install -y wget
+              else
+                echo "error can't install package $PACKAGE"
+                exit 1;
+              fi
               # get redis.sh from the repo
               wget https://raw.githubusercontent.com/crypt1d/redi.sh/master/redi.sh
               chmod +x redi.sh
