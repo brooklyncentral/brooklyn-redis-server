@@ -72,7 +72,7 @@ brooklyn.catalog:
             - equals: true
           - type: org.apache.brooklyn.test.framework.SimpleShellCommandTest
             name: Check Redis process has restarted
-            command: ps -ef | grep [r]edis-server
+            command: ps -ef | grep [r]edis-server | grep -v 'dhclient'
             assertStatus:
               equals: 0
           # Effector: stop + restart Tests
@@ -88,7 +88,7 @@ brooklyn.catalog:
             - equals: false
           - type: org.apache.brooklyn.test.framework.SimpleShellCommandTest
             name: Check Redis process has stopped
-            command: ps -ef | grep [r]edis-server
+            command: ps -ef | grep [r]edis-server | grep -v 'dhclient'
             assertStatus:
               equals: 1
           - type: org.apache.brooklyn.test.framework.TestEffector
@@ -103,7 +103,7 @@ brooklyn.catalog:
             - equals: true
           - type: org.apache.brooklyn.test.framework.SimpleShellCommandTest
             name: Check Redis process has restarted
-            command: ps -ef | grep [r]edis-server
+            command: ps -ef | grep [r]edis-server | grep -v 'dhclient'
             assertStatus:
               equals: 0
         
